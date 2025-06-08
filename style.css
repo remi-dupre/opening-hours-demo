@@ -1,0 +1,135 @@
+/**
+ ** Global Variables
+ **/
+
+body {
+  --col-text-normal: #4d4d4d;
+  --col-text-emphasis: #000000;
+  --col-text-link: #195cb3;
+  --col-state-open: #25b16b;
+}
+
+/**
+ ** Page Setup
+ **/
+
+body {
+  margin: 35px;
+  font-family: "Fira Sans", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--col-text-normal);
+}
+
+h2 {
+  color: var(--col-text-emphasis);
+  font-weight: 400;
+  text-align: center;
+}
+
+p {
+  text-align: center;
+}
+
+strong {
+  color: var(--col-text-emphasis);
+  font-weight: inherit;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  margin: 6px 0;
+}
+
+a {
+  font-family: "Fira Sans", sans-serif;
+  color: var(--col-text-link);
+  text-decoration: underline;
+}
+
+section {
+  margin-top: 45px;
+}
+
+/**
+ ** Buttons
+ **/
+
+.button-box {
+  text-align: center;
+}
+
+.button-box button {
+  background: none;
+  border: 1px solid var(--col-text-link);
+  border-radius: 5px;
+  color: var(--col-text-link);
+  font-size: inherit;
+  padding: 7px 10px;
+}
+
+/**
+ ** Text Input
+ **/
+
+#expression {
+  background: none;
+  border: 2px solid black;
+  border-radius: 5px;
+  box-sizing: border-box;
+  color: var(--col-text-emphasis);
+  font-family: "Fira Mono", sans-serif;
+  font-size: 24px;
+  padding: 10px;
+  text-align: center;
+  width: 100%;
+}
+
+.expression-settings {
+  margin: 10px 0;
+}
+
+.expression-settings a:nth-child(even) {
+  float: right;
+}
+
+/**
+ ** Schedule
+ **/
+
+.schedule text {
+  dominant-baseline: middle;
+  fill: var(--col-text-normal);
+  font-family: "Fira Mono", sans-serif;
+  font-size: 16px;
+}
+
+.schedule .hour {
+  font-size: 14px;
+  text-anchor: middle;
+}
+
+.schedule .hour-guide {
+  stroke: black;
+  stroke-linecap: "round";
+  stroke-dasharray: 2, 4;
+}
+
+.time-needle {
+  stroke: black;
+  stroke-width: 3px;
+}
+
+.schedule .dayline {
+  fill: none;
+  stroke: var(--col-text-normal);
+  stroke-width: 1px;
+}
+
+.schedule .state-open {
+  fill: var(--col-state-open);
+}
