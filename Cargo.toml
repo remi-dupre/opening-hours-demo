@@ -8,6 +8,7 @@ chrono = "0.4"
 chrono-tz = "0.10"
 log = "*"
 opening-hours = { version = "*", features = ["auto-country", "auto-timezone"] }
+opening-hours-syntax = "*"
 wasm-logger = "0.2.0"
 web-sys = "0.3.77"
 yew = { version = "0.21", features = ["csr"] }
