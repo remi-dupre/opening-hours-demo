@@ -1,2 +1,5 @@
 dist/
 target/
+mockups/
+shell.nix
+.envrc
