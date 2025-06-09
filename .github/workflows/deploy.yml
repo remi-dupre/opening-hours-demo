@@ -1,0 +1,26 @@
+name: Deploy to Github Pages
+on: [push]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+          toolchain: stable
+
+      - name: Install Trunk
+        run: cargo install trunk
+
+      - name: Build dist
+        run: trunk build --release
+
+      - name: Publish to Github pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
