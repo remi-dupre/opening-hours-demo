@@ -5,19 +5,25 @@ use yew::prelude::*;
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
-    pub raw_oh: UseStateHandle<String>,
+    pub raw_oh: String,
     pub oh: OpeningHours<TzLocation<chrono_tz::Tz>>,
     pub dt: DateTime<Local>,
-    pub tz: chrono_tz::Tz,
+    pub set_raw_oh: Callback<String, ()>,
 }
 
 #[function_component]
 pub fn Properties(props: &Props) -> Html {
-    let dt = props.dt.with_timezone(&props.tz);
+    let loc = &props.oh.get_context().locale;
+    let dt = props.dt.with_timezone(loc.get_timezone());
     let normalized = props.oh.normalize().to_string();
-    let is_normal = normalized == *props.raw_oh;
-    let state = props.oh.state(dt);
+    let (state, comment) = props.oh.state(dt);
     let next_change_opt = props.oh.next_change(dt);
+
+    let normalize_onclick = {
+        let normalized = normalized.clone();
+        let set_raw_oh = props.set_raw_oh.clone();
+        move |_| set_raw_oh.emit(normalized.clone())
+    };
 
     html! {
       <section>
@@ -28,27 +34,23 @@ pub fn Properties(props: &Props) -> Html {
 
             if let Some(next_change) = next_change_opt {
               {next_change}
-           } else {
+            } else {
               {"never"}
-           }
+            }
           </li>
-          <li><strong>{"Comment: "}</strong> {"hide if no comment"}</li>
-          <li>
-            if is_normal {
-              <strong>{"Already normalized"}</strong>
-           }
-            else {
+
+          if !comment.is_empty() {
+            <li><strong>{"Comment: "}</strong> {comment}</li>
+          }
+
+          if normalized != *props.raw_oh {
+            <li>
               <strong>{"Normalized: "}</strong>
               {normalized}
-           }
-          </li>
+              <button onclick={normalize_onclick}>{"apply"}</button>
+            </li>
+          }
         </ul>
-
-        if !is_normal {
-          <div class="button-box">
-            <button>{"Apply Normalization"}</button>
-          </div>
-       }
       </section>
     }
 }

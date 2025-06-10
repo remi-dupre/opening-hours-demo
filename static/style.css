@@ -75,17 +75,14 @@ section {
  ** Buttons
  **/
 
-.button-box {
-  text-align: center;
-}
-
-.button-box button {
+button {
   background: none;
   border: 1px solid var(--col-text-link);
   border-radius: 5px;
   color: var(--col-text-link);
+  cursor: pointer;
   font-size: inherit;
-  padding: 7px 10px;
+  margin: 0 0.5em;
 }
 
 /**
@@ -121,11 +118,11 @@ section {
   dominant-baseline: middle;
   fill: var(--col-text-normal);
   font-family: "FiraMono";
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .schedule .hour {
-  font-size: 14px;
+  font-size: 12px;
   text-anchor: middle;
 }
 

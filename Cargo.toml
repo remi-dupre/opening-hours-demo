@@ -7,8 +7,11 @@ edition = "2024"
 chrono = "0.4"
 chrono-tz = "0.10"
 log = "*"
-opening-hours = { version = "*", features = ["auto-country", "auto-timezone"] }
-opening-hours-syntax = "*"
+# TODO: release 2.0
+opening-hours = { git = "https://github.com/remi-dupre/opening-hours-rs.git", branch = "fix-comments-api" }
+opening-hours-syntax = { git = "https://github.com/remi-dupre/opening-hours-rs.git", branch = "fix-comments-api" }
+# opening-hours = { version = "*", features = ["auto-country", "auto-timezone"] }
+# opening-hours-syntax = "*"
 wasm-logger = "0.2.0"
 web-sys = "0.3.77"
 yew = { version = "0.21", features = ["csr"] }

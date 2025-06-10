@@ -1,52 +1,74 @@
+pub mod component;
 pub mod section;
 pub mod utils;
 
-use opening_hours::localization::TzLocation;
+use opening_hours::localization::{Coordinates, TzLocation};
 use opening_hours::{Context, OpeningHours};
+use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
 
 #[function_component]
 fn App() -> Html {
-    let raw_oh = use_state(String::new);
-    let oh = use_state(|| None);
-    let tz = use_state(|| chrono_tz::Europe::Paris);
-    let dt = use_state(chrono::Local::now);
+    let expression_ref = use_node_ref();
+    let raw_oh_state = use_state(String::default);
+    let oh_state = use_state(|| None);
+    let dt_state = use_state(chrono::Local::now);
 
-    let oninput = {
-        let raw_oh_state = raw_oh.clone();
-        let oh = oh.clone();
-        let tz = tz.clone();
+    let set_raw_oh = use_callback((), {
+        let expression_ref = expression_ref.clone();
+        let raw_oh_state = raw_oh_state.clone();
+        let oh_state = oh_state.clone();
 
-        move |input: InputEvent| {
-            let raw_oh = input
-                .target_dyn_into::<web_sys::HtmlTextAreaElement>()
-                .map(|el| el.value())
-                .unwrap_or_default();
-
-            raw_oh_state.set(raw_oh.clone());
-
-            match OpeningHours::parse(&raw_oh) {
+        move |value: String, _| {
+            match OpeningHours::parse(&value) {
                 Ok(parsed_oh) => {
-                    let ctx = Context::default().with_locale(TzLocation::new(*tz));
+                    let loc = TzLocation::new(chrono_tz::Europe::Paris)
+                        .with_coords(Coordinates::new(48.85, 2.35).unwrap());
+
+                    let ctx = Context::default().with_locale(loc);
                     let parsed_oh = parsed_oh.with_context(ctx);
-                    oh.set(Some(parsed_oh));
+                    oh_state.set(Some(parsed_oh));
                 }
                 Err(_) => {
-                    oh.set(None);
+                    oh_state.set(None);
                 }
             }
+
+            if let Some(el) = expression_ref.cast::<HtmlTextAreaElement>() {
+                if el.value() != value {
+                    el.set_value(&value);
+                }
+            } else {
+                log::warn!("Could not update text area content")
+            }
+
+            raw_oh_state.set(value);
         }
-    };
+    });
 
     html! {
       <>
         <section>
-          <textarea id="expression" {oninput}></textarea>
+          <component::expression::Expression
+            expression_ref={expression_ref}
+            set_raw_oh={set_raw_oh.clone()}
+          />
+
+          <div class="expression-settings">
+            <a class={"set-location"}>{"🇫🇷 Paris, France"}</a>
+            <a class={"set-time"}>{"08/06/2025 10:54 🕐"}</a>
+          </div>
         </section>
 
-        if let Some(oh) = &*oh {
-          <section::properties::Properties raw_oh={raw_oh} oh={oh.clone()} dt={*dt} tz={*tz} />
-          <section::schedule::Schedule oh={(*oh).clone()} dt={*dt} tz={*tz} />
+        if let Some(oh) = &*oh_state {
+          <section::properties::Properties
+            raw_oh={raw_oh_state.to_string()}
+            oh={oh.clone()}
+            dt={*dt_state}
+            set_raw_oh={set_raw_oh}
+          />
+
+          <section::schedule::Schedule oh={oh.clone()} dt={*dt_state} />
         }
 
         <section::information::Information />

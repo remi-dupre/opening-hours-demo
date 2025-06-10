@@ -12,14 +12,14 @@ use yew::prelude::*;
 pub struct Props {
     pub oh: OpeningHours<TzLocation<Tz>>,
     pub dt: DateTime<Local>,
-    pub tz: Tz,
 }
 
 #[function_component]
 pub fn Schedule(props: &Props) -> Html {
-    let dt = props.dt.with_timezone(&props.tz);
+    let loc = &props.oh.get_context().locale;
+    let dt = props.dt.with_timezone(loc.get_timezone());
     let next_change_opt = props.oh.next_change(dt);
-    let state = props.oh.state(dt);
+    let (state, _comment) = props.oh.state(dt);
 
     let title = {
         if let Some(next_change) = next_change_opt {
@@ -109,7 +109,7 @@ fn draw_schedule_svg(oh: &OpeningHours<TzLocation<Tz>>, dt: DateTime<Tz>) -> Htm
     html! {
       <svg
         class="schedule"
-        viewBox="0 0 389.05 270"
+        viewBox="0 0 385 260"
         xmlns="http://www.w3.org/2000/svg"
       >
         {
