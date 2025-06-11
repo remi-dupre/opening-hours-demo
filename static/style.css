@@ -82,7 +82,7 @@ button {
   color: var(--col-text-link);
   cursor: pointer;
   font-size: inherit;
-  margin: 0 0.5em;
+  margin: 0.1em 0.25em;
 }
 
 /**

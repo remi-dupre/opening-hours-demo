@@ -2,7 +2,7 @@ pub mod component;
 pub mod section;
 pub mod utils;
 
-use opening_hours::localization::{Coordinates, TzLocation};
+use opening_hours::localization::{Coordinates, Country, TzLocation};
 use opening_hours::{Context, OpeningHours};
 use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
@@ -25,7 +25,10 @@ fn App() -> Html {
                     let loc = TzLocation::new(chrono_tz::Europe::Paris)
                         .with_coords(Coordinates::new(48.85, 2.35).unwrap());
 
-                    let ctx = Context::default().with_locale(loc);
+                    let ctx = Context::default()
+                        .with_holidays(Country::US.holidays())
+                        .with_locale(loc);
+
                     let parsed_oh = parsed_oh.with_context(ctx);
                     oh_state.set(Some(parsed_oh));
                 }
@@ -59,6 +62,11 @@ fn App() -> Html {
             <a class={"set-time"}>{"08/06/2025 10:54 🕐"}</a>
           </div>
         </section>
+
+
+        if raw_oh_state.is_empty() {
+          <section::examples::Examples set_raw_oh={set_raw_oh.clone()} />
+        }
 
         if let Some(oh) = &*oh_state {
           <section::properties::Properties

@@ -71,7 +71,7 @@ fn get_relevant_hours(times: impl Iterator<Item = ExtendedTime>) -> Vec<u8> {
     let mut result = HashSet::new();
 
     for (_, hour) in count_hours {
-        if hour == 0 || !result.contains(&(hour - 1)) {
+        if !result.contains(&hour.wrapping_sub(1)) && !result.contains(&(hour + 1)) {
             result.insert(hour);
         }
     }
