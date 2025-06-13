@@ -1,5 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
+use crate::parse::ParsedOh;
 use crate::utils::capitalize;
 use chrono::{DateTime, Datelike, Local, Timelike};
 use chrono_tz::Tz;
@@ -10,16 +11,16 @@ use yew::prelude::*;
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
-    pub oh: OpeningHours<TzLocation<Tz>>,
+    pub oh: ParsedOh,
     pub dt: DateTime<Local>,
 }
 
 #[function_component]
 pub fn Schedule(props: &Props) -> Html {
-    let loc = &props.oh.get_context().locale;
+    let loc = &props.oh.oh.get_context().locale;
     let dt = props.dt.with_timezone(loc.get_timezone());
-    let next_change_opt = props.oh.next_change(dt);
-    let (state, _comment) = props.oh.state(dt);
+    let next_change_opt = props.oh.oh.next_change(dt);
+    let (state, _comment) = props.oh.oh.state(dt);
 
     let title = {
         if let Some(next_change) = next_change_opt {
@@ -42,7 +43,7 @@ pub fn Schedule(props: &Props) -> Html {
     html! {
       <section>
         <h2>{title}</h2>
-        {draw_schedule_svg(&props.oh, dt)}
+        {draw_schedule_svg(&props.oh.oh, dt)}
       </section>
     }
 }
