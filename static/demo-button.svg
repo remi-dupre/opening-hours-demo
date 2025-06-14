@@ -3,12 +3,12 @@
 
 <svg
    width="256"
-   height="96"
-   viewBox="0 0 67.733332 25.4"
+   height="80"
+   viewBox="0 0 67.733332 21.166667"
    version="1.1"
    id="svg1"
-   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
    sodipodi:docname="demo-button.svg"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -25,10 +25,10 @@
      inkscape:document-units="mm"
      showguides="false"
      inkscape:zoom="0.84662347"
-     inkscape:cx="408.09169"
-     inkscape:cy="83.862546"
-     inkscape:window-width="1889"
-     inkscape:window-height="1412"
+     inkscape:cx="408.68227"
+     inkscape:cy="84.453128"
+     inkscape:window-width="2560"
+     inkscape:window-height="1381"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
@@ -39,35 +39,21 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
-    <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.04821;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect2-4"
-       width="9.448699"
-       height="3.9469883"
-       x="1.6558615"
-       y="1.2769035"
-       inkscape:label="day1-background"
-       transform="translate(-0.67234128,-0.67234128)" />
-    <rect
-       style="fill:#25b16b;stroke:#7c7c7c;stroke-width:2.45263;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1"
+    <path
        id="rect1"
-       width="65.280701"
-       height="22.947372"
-       x="1.2263142"
-       y="1.2263159"
+       style="fill:#25b16b;stroke:#7c7c7c;stroke-width:2.23168;stroke-linejoin:round"
        inkscape:label="day1-box"
-       ry="5.8422313"
-       rx="0" />
+       d="M 6.9778439,1.1158406 H 60.755486 c 3.24755,0 5.862004,2.1500356 5.862004,4.8207077 V 15.23012 c 0,2.670672 -2.614454,4.820708 -5.862004,4.820708 H 6.9778439 c -3.2475508,0 -5.862005,-2.150036 -5.862005,-4.820708 V 5.9365483 c 0,-2.6706721 2.6144542,-4.8207077 5.862005,-4.8207077 z" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12.7px;font-family:Sans;-inkscape-font-specification:'Sans, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke-width:2.11667;stroke-linejoin:round;stroke-dasharray:none"
        x="15.032557"
-       y="17.170403"
+       y="15.053737"
        id="text1"><tspan
          sodipodi:role="line"
          id="tspan1"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:12.7px;font-family:Sans;-inkscape-font-specification:'Sans, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#ffffff;fill-opacity:1;stroke-width:2.11667"
          x="15.032557"
-         y="17.170403">Demo</tspan></text>
+         y="15.053737">Demo</tspan></text>
   </g>
 </svg>
