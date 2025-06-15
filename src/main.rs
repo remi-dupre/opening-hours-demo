@@ -1,4 +1,5 @@
 pub mod component;
+pub mod links;
 pub mod parse;
 pub mod section;
 pub mod utils;
@@ -62,6 +63,7 @@ fn App() -> Html {
         }
 
         <section::information::Information />
+        <section::footer::Footer />
       </>
     }
 }

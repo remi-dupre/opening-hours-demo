@@ -27,14 +27,22 @@ body {
  ** Page Setup
  **/
 
+html {
+  height: 100%;
+}
+
 body {
   margin: auto;
+  padding: 35px 0;
   max-width: 570px;
+  min-height: 100%;
+  box-sizing: border-box;
   font-family: "FiraSans";
   font-style: normal;
   font-weight: 400;
   font-size: 16px;
   color: var(--col-text-normal);
+  position: relative;
 }
 
 h2 {
@@ -68,7 +76,25 @@ a {
 }
 
 section {
-  margin: 45px 35px;
+  margin: 0 35px 35px 35px;
+}
+
+/**
+ ** Footer
+ **/
+
+footer {
+  bottom: 0;
+  box-sizing: border-box;
+  padding: 35px 35px 20px 35px;
+  position: absolute;
+  width: 100%;
+  font-size: 14px;
+}
+
+footer a {
+  color: var(--col-text-normal);
+  text-decoration: none;
 }
 
 /**
@@ -83,6 +109,22 @@ button {
   cursor: pointer;
   font-size: inherit;
   margin: 0.1em 0.25em;
+}
+
+/**
+ ** Icons
+ **/
+
+.icon-container {
+  display: inline-block;
+  fill: currentColor;
+  height: 1.2em;
+  padding: 0 2px;
+  vertical-align: bottom;
+}
+
+.icon-container > svg {
+  height: 100%;
 }
 
 /**

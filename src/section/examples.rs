@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-const EXPRESSIONS: &[&str] = [
+const EXPRESSIONS: &[&str] = &[
     "Mo-Fr 10:00-20:00; PH off",
     "24/7",
     "22:00+; PH off",
@@ -9,8 +9,7 @@ const EXPRESSIONS: &[&str] = [
     "Mo,Tu,Th,Fr 12:00-18:00; Sa,PH 12:00-17:00; Th[3],Th[-1] off",
     "Mo-Fr 08:00-11:00 || Tu-Th,PH open \"Emergency only\"",
     "Apr-Oct Su[2] 14:00-18:00; Aug Su[-1] -1 day 10:00-18:00; PH off",
-]
-.as_slice();
+];
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
