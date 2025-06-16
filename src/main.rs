@@ -7,7 +7,8 @@ pub mod utils;
 use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
 
-use self::parse::ParsedOh;
+use crate::component::icon::{ArrowDropdown, Icon};
+use crate::parse::ParsedOh;
 
 #[function_component]
 fn App() -> Html {
@@ -42,8 +43,8 @@ fn App() -> Html {
           />
 
           <div class="expression-settings">
-            <a class={"set-location"}>{"🇫🇷 Paris, France"}</a>
-            <a class={"set-time"}>{"08/06/2025 10:54 🕐"}</a>
+            <a class={"set-location"}>{"🇫🇷 Paris, France"}<Icon src={ArrowDropdown} /></a>
+            <a class={"set-time"}><Icon src={ArrowDropdown} />{"08/06/2025 10:54 🕐"}</a>
           </div>
         </section>
 

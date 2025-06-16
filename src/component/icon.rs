@@ -16,20 +16,30 @@ pub fn Icon(props: &Props) -> Html {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub enum Src {
-    // Icons from pictogrammers: https://pictogrammers.com/library/mdi/
-    GitHub,
+macro_rules! declare_src {
+    ( $( ( $name: ident, $file: literal ) , )* ) => {
+        #[derive(Clone, Copy, PartialEq, Eq)]
+        pub enum Src {
+            $( $name ),*
+        }
+
+        impl Src {
+            fn raw_html(self) -> &'static str {
+                match self {
+                    $( $name => include_str!(concat!("../../static/icons/", $file)) ),*
+                }
+            }
+
+            fn html(self) -> Html {
+                Html::from_html_unchecked(self.raw_html().into())
+            }
+        }
+    };
 }
 
-impl Src {
-    fn raw_html(self) -> &'static str {
-        match self {
-            Self::GitHub => include_str!("../../static/icons/github.svg"),
-        }
-    }
-
-    fn html(self) -> Html {
-        Html::from_html_unchecked(self.raw_html().into())
-    }
+declare_src! {
+    // Pictogrammers: https://pictogrammers.com/library/mdi/
+    (GitHub, "github.svg"),
+    // Homemade
+    (ArrowDropdown, "arrow-dropdown.svg"),
 }
