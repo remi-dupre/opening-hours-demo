@@ -21,6 +21,6 @@ pub fn Expression(props: &Props) -> Html {
     };
 
     html! {
-      <textarea id="expression" ref={props.expression_ref.clone()} {oninput}></textarea>
+      <textarea id="expression" ref={props.expression_ref.clone()} {oninput} />
     }
 }

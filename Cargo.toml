@@ -14,4 +14,4 @@ opening-hours-syntax = { git = "https://github.com/remi-dupre/opening-hours-rs.g
 # opening-hours-syntax = "*"
 wasm-logger = "0.2.0"
 web-sys = "0.3.77"
-yew = { version = "0.21", features = ["csr"] }
+yew = { version = "0.23", features = ["csr"] }
