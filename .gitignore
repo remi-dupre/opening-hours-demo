@@ -2,4 +2,5 @@ dist/
 target/
 mockups/
 shell.nix
+.direnv
 .envrc

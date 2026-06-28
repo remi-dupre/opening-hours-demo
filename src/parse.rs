@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use chrono_tz::Tz;
 
 use opening_hours::localization::{Coordinates, Country, TzLocation};
@@ -21,7 +23,7 @@ impl ParsedOh {
             .with_holidays(Country::US.holidays())
             .with_locale(loc);
 
-        let (time_parsing, oh) = measure_time(|| OpeningHours::parse(&raw));
+        let (time_parsing, oh) = measure_time(|| OpeningHours::from_str(&raw));
         let oh = oh?.with_context(ctx);
 
         Ok(Self {
