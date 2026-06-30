@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::EvalContext;
+use crate::eval::CallbackUpdateCtx;
 
 const EXPRESSIONS: &[&str] = &[
     "Mo-Fr 10:00-20:00; PH off",
@@ -15,20 +15,14 @@ const EXPRESSIONS: &[&str] = &[
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
-    pub(crate) ctx: UseStateHandle<EvalContext>,
-    pub(crate) update_ctx: Callback<EvalContext, ()>,
+    pub cb_update_ctx: CallbackUpdateCtx,
 }
 
 #[function_component]
 pub fn Examples(props: &Props) -> Html {
-    let onclick_set = |raw: &'static str| {
-        let ctx = props.ctx.clone();
-        let update_ctx = props.update_ctx.clone();
-
-        move |_| {
-            let new_ctx = (*ctx).clone().with_raw_oh(raw.to_string());
-            update_ctx.emit(new_ctx)
-        }
+    let onclick_set = move |raw: &'static str| {
+        let cb_update_ctx = props.cb_update_ctx.clone();
+        move |_| cb_update_ctx.emit(Box::new(|ctx| ctx.with_raw_oh(raw.to_string())))
     };
 
     html! {

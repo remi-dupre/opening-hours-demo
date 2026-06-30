@@ -35,6 +35,28 @@ fn App() -> Html {
             .unwrap_or_default()
     });
 
+    let cb_update_ctx = use_callback(ctx.clone(), {
+        let navigator = navigator.clone();
+
+        move |mut mutation: Box<dyn FnMut(EvalContext) -> EvalContext>, ctx| {
+            let new_ctx = (mutation)((**ctx).clone());
+
+            if **ctx == new_ctx {
+                return;
+            }
+
+            // Don't fetch the location from hook because it might not have been updated if there
+            // was no render.
+            let location = BrowserHistory::new().location();
+
+            if let Some(navigator) = &navigator {
+                new_ctx.update_url(&location, navigator);
+            }
+
+            ctx.set(new_ctx)
+        }
+    });
+
     let update_ctx = use_callback(ctx.clone(), {
         let navigator = navigator.clone();
 
@@ -76,42 +98,16 @@ fn App() -> Html {
       <>
         <main class="container">
           <component::expression::Expression
-            ctx={ctx.clone()}
-            update_ctx={update_ctx.clone()}
+            raw_oh={ctx.raw_oh.clone()}
+            is_valid={ctx.oh().is_some()}
+            cb_update_ctx={cb_update_ctx.clone()}
             expression_ref={expression_ref}
           />
 
-          <details name="example" open={false}>
-            <summary>
-              <em>{"Evaluate from 2026/06/25 12:00:00 in France "}</em>
-            </summary>
-            <article>
-            <h4>{"Change current evaluation date"}</h4>
-            <form>
-              <fieldset>
-                <label>
-                  <input name="terms" type="checkbox" role="switch" />
-                  {"Evaluate from current date"}
-                </label>
-              </fieldset>
-              <fieldset role="group">
-                <input type="submit" value="-1d" />
-                <input type="datetime-local" class="outline" />
-                <input type="submit" value="+1d" />
-              </fieldset>
-            </form>
-            <h4>{"Change evaluation position"}</h4>
-            <form>
-              <fieldset role="group">
-                <input type="number" step="0.01" placeholder="Latitude" />
-                <input type="number" step="0.01" placeholder="Longitude" />
-              </fieldset>
-              <p>
-                {"Detected country: France. Detected timezone: Europe/Paris."}
-              </p>
-            </form>
-            </article>
-          </details>
+          <section::context_form::ContextForm
+            ctx={ctx.clone()}
+            cb_update_ctx={cb_update_ctx.clone()}
+          />
 
           <hr />
 
@@ -120,7 +116,7 @@ fn App() -> Html {
             <section::properties::Properties ctx={ctx.clone()} />
             <section::schedule::Schedule ctx={ctx.clone()} />
           } else {
-            <section::examples::Examples ctx={ctx} update_ctx={update_ctx} />
+            <section::examples::Examples cb_update_ctx={cb_update_ctx} />
           }
 
         </main>

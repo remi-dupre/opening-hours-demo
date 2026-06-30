@@ -1,20 +1,20 @@
 use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
 
-use crate::EvalContext;
+use crate::eval::{CallbackUpdateCtx, EvalContext};
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
-    pub(crate) ctx: UseStateHandle<EvalContext>,
-    pub(crate) update_ctx: Callback<EvalContext, ()>,
-    pub(crate) expression_ref: NodeRef,
+    pub raw_oh: String,
+    pub is_valid: bool,
+    pub cb_update_ctx: CallbackUpdateCtx,
+    pub expression_ref: NodeRef,
 }
 
 #[function_component]
 pub fn Expression(props: &Props) -> Html {
     let oninput = use_callback((), {
-        let ctx = props.ctx.clone();
-        let update_ctx = props.update_ctx.clone();
+        let cb_update_ctx = props.cb_update_ctx.clone();
 
         move |input: InputEvent, ()| {
             let Some(el) = input.target_dyn_into::<HtmlTextAreaElement>() else {
@@ -22,15 +22,16 @@ pub fn Expression(props: &Props) -> Html {
                 return;
             };
 
-            let new_ctx = (*ctx).clone().with_raw_oh(el.value());
-            update_ctx.emit(new_ctx)
+            cb_update_ctx.emit(Box::new(move |ctx: EvalContext| {
+                ctx.with_raw_oh(el.value())
+            }))
         }
     });
 
     let invalid = {
-        if props.ctx.raw_oh.is_empty() {
+        if props.raw_oh.is_empty() {
             ""
-        } else if props.ctx.oh().is_some() {
+        } else if props.is_valid {
             "false"
         } else {
             "true"
@@ -40,11 +41,11 @@ pub fn Expression(props: &Props) -> Html {
     html! {
       <textarea
         ref={props.expression_ref.clone()}
-        value={props.ctx.raw_oh.clone()}
-        {oninput}
+        value={props.raw_oh.clone()}
+        aria-invalid={invalid}
         placeholder="Enter an opening hours expression"
         row="2"
-        aria-invalid={invalid}
+        {oninput}
       />
     }
 }

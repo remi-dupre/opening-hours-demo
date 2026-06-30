@@ -20,7 +20,7 @@ pub fn Schedule(props: &Props) -> Html {
     };
 
     let loc = &oh.get_context().locale;
-    let dt = props.ctx.dt().with_timezone(loc.get_timezone());
+    let dt = props.ctx.local_dt().with_timezone(loc.get_timezone());
     draw_schedule_svg(oh, dt)
 }
 

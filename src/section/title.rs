@@ -16,7 +16,7 @@ pub fn Title(props: &Props) -> Html {
     };
 
     let loc = &oh.get_context().locale;
-    let dt = props.ctx.dt().with_timezone(loc.get_timezone());
+    let dt = props.ctx.local_dt().with_timezone(loc.get_timezone());
     let next_change_opt = oh.next_change(dt);
     let (state, _comment) = oh.state(dt);
 
