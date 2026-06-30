@@ -1,117 +1,39 @@
-pub mod component;
-pub mod links;
-pub mod parse;
-pub mod section;
-pub mod utils;
+pub(crate) mod component;
+pub(crate) mod eval;
+pub(crate) mod links;
+pub(crate) mod section;
+pub(crate) mod utils;
 
-use std::cell::OnceCell;
-
-use chrono::{DateTime, Local};
 use chrono_tz::Tz;
-use opening_hours::localization::{Coordinates, Country, TzLocation};
-use serde::{Deserialize, Serialize};
+use opening_hours::localization::TzLocation;
 use yew::prelude::*;
-use yew_router::{
-    BrowserRouter, Routable,
-    history::{BrowserHistory, History},
-    hooks::{use_location, use_navigator},
-    prelude::{Location, Navigator},
-};
+use yew_router::history::{BrowserHistory, History};
+use yew_router::prelude::*;
+
+use crate::eval::EvalContext;
 
 pub(crate) type OpeningHours = opening_hours::OpeningHours<TzLocation<Tz>>;
-
-#[derive(Clone, Debug, Default)]
-struct EvalContextCache {
-    oh: OnceCell<Option<OpeningHours>>,
-}
-
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-pub struct EvalContext {
-    #[serde(default, rename = "oh", skip_serializing_if = "String::is_empty")]
-    pub raw_oh: String,
-    pub dt: Option<DateTime<Local>>,
-    #[serde(default, skip)]
-    cache: EvalContextCache,
-}
-
-impl PartialEq for EvalContext {
-    fn eq(&self, other: &Self) -> bool {
-        self.raw_oh == other.raw_oh && self.dt == other.dt
-    }
-}
-
-impl Eq for EvalContext {}
-
-impl EvalContext {
-    pub(crate) fn oh(&self) -> Option<&OpeningHours> {
-        (self.cache.oh)
-            .get_or_init(|| {
-                let loc = TzLocation::new(chrono_tz::Europe::Paris)
-                    .with_coords(Coordinates::new(48.85, 2.35).unwrap());
-
-                let ctx = opening_hours::Context::default()
-                    .with_holidays(Country::US.holidays())
-                    .with_locale(loc);
-
-                let oh: opening_hours::OpeningHours = self.raw_oh.parse().ok()?;
-                Some(oh.with_context(ctx))
-            })
-            .as_ref()
-    }
-
-    pub(crate) fn dt(&self) -> DateTime<Local> {
-        self.dt.unwrap_or_else(Local::now)
-    }
-
-    fn new_from_url(location: &Location) -> Self {
-        location
-            .query::<Self>()
-            .inspect_err(|err| log::warn!("Could not parse evaluation state from URL: {err}"))
-            .unwrap_or_default()
-    }
-
-    fn with_raw_oh(self, oh_raw: String) -> Self {
-        Self {
-            raw_oh: oh_raw,
-            cache: EvalContextCache::default(),
-            ..self
-        }
-    }
-
-    fn update_url(&self, location: &Location, navigator: &Navigator) {
-        let prev_val = Self::new_from_url(location);
-
-        if &prev_val == self {
-            return;
-        }
-
-        let result = {
-            if prev_val.oh().is_some() {
-                log::info!("Push {:?}", self.raw_oh);
-                navigator.push_with_query(&Route::Root, self)
-            } else {
-                log::info!("Replace {:?}", self.raw_oh);
-                navigator.replace_with_query(&Route::Root, self)
-            }
-        };
-
-        if let Err(err) = result {
-            log::warn!("Could not update history: {err}")
-        };
-    }
-}
 
 #[derive(Debug, Clone, Copy, PartialEq, Routable)]
 enum Route {
     #[at("/")]
     Root,
+    /// TODO
+    #[at("/s/{blob}/")]
+    ShortLink,
 }
 
 #[function_component]
 fn App() -> Html {
     let expression_ref = use_node_ref();
-    let ctx = use_state(EvalContext::default);
     let navigator = use_navigator();
+    let location = use_location();
+
+    let ctx = use_state(|| {
+        (location.as_ref())
+            .map(EvalContext::new_from_url)
+            .unwrap_or_default()
+    });
 
     let update_ctx = use_callback(ctx.clone(), {
         let navigator = navigator.clone();
@@ -134,8 +56,6 @@ fn App() -> Html {
     });
 
     // Update the context any time the URL changes (eg. by click back button)
-    let location = use_location();
-
     use_effect_with(location, {
         let update_ctx = update_ctx.clone();
 
