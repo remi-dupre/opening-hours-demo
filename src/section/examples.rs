@@ -1,5 +1,7 @@
 use yew::prelude::*;
 
+use crate::EvalContext;
+
 const EXPRESSIONS: &[&str] = &[
     "Mo-Fr 10:00-20:00; PH off",
     "24/7",
@@ -13,28 +15,38 @@ const EXPRESSIONS: &[&str] = &[
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
-    pub set_raw_oh: Callback<String, ()>,
+    pub(crate) ctx: UseStateHandle<EvalContext>,
+    pub(crate) update_ctx: Callback<EvalContext, ()>,
 }
 
 #[function_component]
 pub fn Examples(props: &Props) -> Html {
     let onclick_set = |raw: &'static str| {
-        let set_raw_oh = props.set_raw_oh.clone();
-        move |_| set_raw_oh.emit(raw.to_string())
+        let ctx = props.ctx.clone();
+        let update_ctx = props.update_ctx.clone();
+
+        move |_| {
+            let new_ctx = (*ctx).clone().with_raw_oh(raw.to_string());
+            update_ctx.emit(new_ctx)
+        }
     };
 
     html! {
-      <section>
-        <p>
-          {"Here are a few examples of valid expressions :"}
-        </p>
-        <p>
+      <article>
+        <header>
+          {"Examples"}
+        </header>
+        <ul>
           {
             EXPRESSIONS.iter().map(|expr| {
-              html!{<button onclick={onclick_set(expr)}>{expr}</button>}
+              html!{
+                <li>
+                  <a onclick={onclick_set(expr)}>{expr}</a>
+                </li>
+              }
             }).collect::<Html>()
           }
-        </p>
-      </section>
+        </ul>
+      </article>
     }
 }

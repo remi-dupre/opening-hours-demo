@@ -9,13 +9,12 @@ use crate::utils::{PrettyDuration, measure_time};
 
 #[derive(Clone, PartialEq)]
 pub struct ParsedOh {
-    pub raw: String,
     pub oh: OpeningHours<TzLocation<Tz>>,
     pub time_parsing: PrettyDuration,
 }
 
 impl ParsedOh {
-    pub fn new(raw: String) -> Result<Self, opening_hours_syntax::Error> {
+    pub fn new(raw: &str) -> Result<Self, opening_hours_syntax::Error> {
         let loc = TzLocation::new(chrono_tz::Europe::Paris)
             .with_coords(Coordinates::new(48.85, 2.35).unwrap());
 
@@ -25,11 +24,6 @@ impl ParsedOh {
 
         let (time_parsing, oh) = measure_time(|| OpeningHours::from_str(&raw));
         let oh = oh?.with_context(ctx);
-
-        Ok(Self {
-            raw,
-            oh,
-            time_parsing,
-        })
+        Ok(Self { oh, time_parsing })
     }
 }

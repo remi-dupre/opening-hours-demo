@@ -1,5 +1,5 @@
-pub mod examples;
-pub mod footer;
-pub mod information;
-pub mod properties;
-pub mod schedule;
+pub(crate) mod examples;
+pub(crate) mod information;
+pub(crate) mod properties;
+pub(crate) mod schedule;
+pub(crate) mod title;

@@ -4,11 +4,13 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-chrono = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
 chrono-tz = "0.10"
 log = "*"
-opening-hours = { version = "*", features = ["auto-country", "auto-timezone", "log"] }
 opening-hours-syntax = "*"
+opening-hours = { version = "*", features = ["auto-country", "auto-timezone", "log"] }
+serde = { version = "1.0.228", features = ["derive"] }
 wasm-logger = "0.2.0"
 web-sys = "0.3.77"
+yew-router = "0.20.0"
 yew = { version = "0.23", features = ["csr"] }

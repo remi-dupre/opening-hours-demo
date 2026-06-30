@@ -1,0 +1,55 @@
+.container {
+  max-width: 600px;
+}
+
+/**
+ ** Icons
+ **/
+
+.icon-container {
+  display: inline-block;
+  fill: currentColor;
+  height: 1em;
+  vertical-align: baseline;
+}
+
+.icon-container > svg {
+  display: block;
+  height: 100%;
+}
+
+/**
+ ** Schedule
+ **/
+
+.schedule text {
+  dominant-baseline: middle;
+  fill: var(--pico-color);
+  font-size: 10px;
+}
+
+.schedule .hour {
+  font-size: 8px;
+  text-anchor: middle;
+}
+
+.schedule .hour-guide {
+  stroke: var(--pico-color);
+  stroke-linecap: "round";
+  stroke-dasharray: 2, 4;
+}
+
+.time-needle {
+  stroke: var(--pico-color);
+  stroke-width: 1px;
+}
+
+.schedule .dayline {
+  fill: none;
+  stroke: var(--pico-color);
+  stroke-width: 0.5px;
+}
+
+.schedule .state-open {
+  fill: var(--pico-primary-background);
+}

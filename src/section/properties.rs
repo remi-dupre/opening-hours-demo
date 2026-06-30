@@ -1,71 +1,92 @@
-use chrono::{DateTime, Local};
+use std::ops::Deref;
+
 use yew::prelude::*;
 
-use crate::parse::ParsedOh;
+use crate::EvalContext;
 use crate::utils::measure_time;
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
-    pub oh: ParsedOh,
-    pub dt: DateTime<Local>,
-    pub set_raw_oh: Callback<String, ()>,
+    pub ctx: UseStateHandle<EvalContext>,
 }
 
 #[function_component]
 pub fn Properties(props: &Props) -> Html {
-    let loc = &props.oh.oh.get_context().locale;
-    let dt = props.dt.with_timezone(loc.get_timezone());
-    let normalized = props.oh.oh.normalize().to_string();
+    let Some(oh) = props.ctx.oh() else {
+        return html!();
+    };
 
-    let (time_eval, (state, comment, next_change_opt)) = measure_time(|| {
-        let (state, comment) = props.oh.oh.state(dt);
-        let next_change_opt = props.oh.oh.next_change(dt);
+    let loc = &oh.get_context().locale;
+    let dt = props.ctx.dt().with_timezone(loc.get_timezone());
+    let pretified = oh.to_string();
+    let normalized = oh.normalize().to_string();
+
+    let (_time_eval, (state, comment, next_change_opt)) = measure_time(|| {
+        let (state, comment) = oh.state(dt);
+        let next_change_opt = oh.next_change(dt);
         (state, comment, next_change_opt)
     });
 
-    let normalize_onclick = {
-        let normalized = normalized.clone();
-        let set_raw_oh = props.set_raw_oh.clone();
-        move |_| set_raw_oh.emit(normalized.clone())
+    let pretified_onclick = {
+        let pretified = pretified.clone();
+        let ctx = props.ctx.clone();
+        move |_| ctx.set(ctx.deref().clone().with_raw_oh(pretified.clone()))
     };
 
-    html! {
-      <section>
-        <ul>
-          <li><strong>{"State: "}</strong> {state}</li>
-          <li>
-            <strong>{"Next change: "}</strong>
+    let normalize_onclick = {
+        let normalized = normalized.clone();
+        let ctx = props.ctx.clone();
+        move |_| ctx.set(ctx.deref().clone().with_raw_oh(normalized.clone()))
+    };
 
-            if let Some(next_change) = next_change_opt {
-              {next_change}
-            } else {
-              {"never"}
-            }
-          </li>
+    let next_change = next_change_opt
+        .map(|dt| dt.to_string())
+        .unwrap_or_else(|| "never".to_string());
+
+    html! {
+      <>
+        <table class="stripped">
+        <tbody>
+          <tr>
+            <th>{"State"}</th>
+            <td>{state.to_string()}</td>
+          </tr>
+          <tr>
+            <th>{"Next change"}</th>
+            <td>{next_change}</td>
+          </tr>
 
           if !comment.is_empty() {
-            <li>
-              <strong>{"Comment: "}</strong>
-              {comment}
-            </li>
+            <tr>
+              <th>{"Comment: "}</th>
+              <td>{comment}</td>
+            </tr>
           }
 
-          if normalized != *props.oh.raw {
-            <li>
-              <strong>{"Normalized: "}</strong>
-              {normalized}
-              <button onclick={normalize_onclick}>{"apply"}</button>
-            </li>
+          if pretified != props.ctx.raw_oh {
+            <tr>
+              <th>{"Pretified"}</th>
+              <td>
+                {pretified.clone()}
+                {" "}
+                <a onclick={pretified_onclick}>{"(apply)"}</a>
+              </td>
+            </tr>
           }
 
-          <li>
-            <strong>{"Time: "}</strong>
-            {props.oh.time_parsing}
-            {" (parsing) + "}
-            {time_eval}
-            {" (evaluating)"}
-          </li>
-        </ul>
-      </section>
+          if normalized != pretified {
+            <tr>
+              <th>{"Normalized"}</th>
+              <td>
+                {normalized}
+                {" "}
+                <a onclick={normalize_onclick}>{"(apply)"}</a>
+              </td>
+            </tr>
+          }
+
+          </tbody>
+        </table>
+      </>
     }
 }

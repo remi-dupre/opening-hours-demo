@@ -1,51 +1,27 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::parse::ParsedOh;
-use crate::utils::capitalize;
-use chrono::{DateTime, Datelike, Local, Timelike};
+use chrono::{DateTime, Timelike};
 use chrono_tz::Tz;
-use opening_hours::localization::TzLocation;
-use opening_hours::{OpeningHours, RuleKind};
+use opening_hours::RuleKind;
 use opening_hours_syntax::ExtendedTime;
 use yew::prelude::*;
 
+use crate::{EvalContext, OpeningHours};
+
 #[derive(Properties, PartialEq)]
 pub struct Props {
-    pub oh: ParsedOh,
-    pub dt: DateTime<Local>,
+    pub ctx: UseStateHandle<EvalContext>,
 }
 
 #[function_component]
 pub fn Schedule(props: &Props) -> Html {
-    let loc = &props.oh.oh.get_context().locale;
-    let dt = props.dt.with_timezone(loc.get_timezone());
-    let next_change_opt = props.oh.oh.next_change(dt);
-    let (state, _comment) = props.oh.oh.state(dt);
-
-    let title = {
-        if let Some(next_change) = next_change_opt {
-            let readable_dt = {
-                if next_change.date_naive() == dt.date_naive() {
-                    next_change.format("%H:%M")
-                } else if next_change.year() == dt.year() {
-                    next_change.format("%B %d, %H:%M")
-                } else {
-                    next_change.format("%B %d %Y, %H:%M")
-                }
-            };
-
-            format!("{} until {readable_dt}", capitalize(&state.to_string()))
-        } else {
-            format!("Always {state}")
-        }
+    let Some(oh) = props.ctx.oh() else {
+        return html!();
     };
 
-    html! {
-      <section>
-        <h2>{title}</h2>
-        {draw_schedule_svg(&props.oh.oh, dt)}
-      </section>
-    }
+    let loc = &oh.get_context().locale;
+    let dt = props.ctx.dt().with_timezone(loc.get_timezone());
+    draw_schedule_svg(oh, dt)
 }
 
 fn get_relevant_hours(times: impl Iterator<Item = ExtendedTime>) -> Vec<u8> {
@@ -82,12 +58,12 @@ fn get_relevant_hours(times: impl Iterator<Item = ExtendedTime>) -> Vec<u8> {
     result
 }
 
-fn draw_schedule_svg(oh: &OpeningHours<TzLocation<Tz>>, dt: DateTime<Tz>) -> Html {
-    const HEADER_HEIGHT: f32 = 30.0;
+fn draw_schedule_svg(oh: &OpeningHours, dt: DateTime<Tz>) -> Html {
+    const HEADER_HEIGHT: f32 = 20.0;
     const WDAY_WIDTH: f32 = 30.0;
-    const DAY_HEIGHT: f32 = 25.0;
+    const DAY_HEIGHT: f32 = 12.0;
     const DAY_WIDTH: f32 = 300.0;
-    const DAY_GAP: f32 = 8.0;
+    const DAY_GAP: f32 = 4.0;
     let y_pos = |idx: usize| HEADER_HEIGHT + idx as f32 * (DAY_HEIGHT + DAY_GAP);
 
     let days: Vec<_> = (0..7)
@@ -110,7 +86,7 @@ fn draw_schedule_svg(oh: &OpeningHours<TzLocation<Tz>>, dt: DateTime<Tz>) -> Htm
     html! {
       <svg
         class="schedule"
-        viewBox="0 0 385 260"
+        viewBox="0 0 385 130"
         xmlns="http://www.w3.org/2000/svg"
       >
         {
@@ -198,7 +174,7 @@ fn draw_schedule_svg(oh: &OpeningHours<TzLocation<Tz>>, dt: DateTime<Tz>) -> Htm
               let x = WDAY_WIDTH + DAY_WIDTH * f32::from(*hour) / 24.0;
 
               html!{
-                <line class="hour-guide" x1={x.to_string()} x2={x.to_string()} y1="20" y2="270" />
+                <line class="hour-guide" x1={x.to_string()} x2={x.to_string()} y1="18" y2="130" />
               }
             }).collect::<Html>()
         }
