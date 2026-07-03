@@ -2,6 +2,7 @@ use std::cell::OnceCell;
 
 use chrono::{DateTime, Local};
 use opening_hours::localization::{Coordinates, Country, TzLocation};
+use opening_hours_syntax::Parser;
 use serde::{Deserialize, Serialize};
 use yew::Callback;
 use yew_router::{
@@ -18,7 +19,7 @@ pub type CallbackUpdateCtx = Callback<Box<dyn FnMut(EvalContext) -> EvalContext>
 
 #[derive(Clone, Debug, Default)]
 struct EvalContextCache {
-    oh: OnceCell<Option<OpeningHours>>,
+    oh: OnceCell<Option<(OpeningHours, Vec<String>)>>,
     location: OnceCell<TzLocation<chrono_tz::Tz>>,
     country: OnceCell<Option<Country>>,
 }
@@ -41,11 +42,12 @@ pub struct EvalContext {
 }
 
 impl EvalContext {
-    pub fn get_oh(&self) -> Option<&OpeningHours> {
+    fn get_oh_and_warnings(&self) -> Option<(&OpeningHours, &[String])> {
         (self.cache.oh)
             .get_or_init(|| {
                 let loc = TzLocation::new(chrono_tz::Europe::Paris).with_coords(self.get_coords());
                 let mut ctx = opening_hours::Context::default().with_locale(loc);
+                let mut warnings = Vec::new();
 
                 if let Some(country) = Country::try_from_coords(self.get_coords()) {
                     ctx = ctx
@@ -53,10 +55,24 @@ impl EvalContext {
                         .with_holidays_unknown(country.holidays_regional());
                 }
 
-                let oh: opening_hours::OpeningHours = self.raw_oh.parse().ok()?;
-                Some(oh.with_context(ctx))
+                let mut parser = Parser::default()
+                    .with_warning_handler(|warning| warnings.push(warning.to_string()));
+
+                let oh = opening_hours::OpeningHours::parse_with(&mut parser, &self.raw_oh).ok()?;
+                Some((oh.with_context(ctx), warnings))
             })
             .as_ref()
+            .map(|(oh, w)| (oh, w.as_slice()))
+    }
+
+    pub fn get_oh(&self) -> Option<&OpeningHours> {
+        self.get_oh_and_warnings().map(|(oh, _)| oh)
+    }
+
+    pub fn get_warnings(&self) -> &[String] {
+        self.get_oh_and_warnings()
+            .map(|(_, w)| w)
+            .unwrap_or_default()
     }
 
     pub fn get_local_dt(&self) -> DateTime<Local> {

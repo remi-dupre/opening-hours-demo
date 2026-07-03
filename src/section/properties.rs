@@ -43,48 +43,60 @@ pub fn Properties(props: &Props) -> Html {
         .map(|dt| dt.to_string())
         .unwrap_or_else(|| "never".to_string());
 
+    let warnings = (props.ctx)
+        .get_warnings()
+        .iter()
+        .map(|warning| {
+            html! {
+              <tr>
+                <td colspan="2"><mark>{warning}</mark></td>
+              </tr>
+            }
+        })
+        .collect::<Vec<_>>();
+
     html! {
       <>
         <table class="stripped">
-        <tbody>
-          <tr>
-            <th>{"State"}</th>
-            <td>{state.to_string()}</td>
-          </tr>
-          <tr>
-            <th>{"Next change"}</th>
-            <td>{next_change}</td>
-          </tr>
-
-          if !comment.is_empty() {
+          <tbody>
+            {warnings}
             <tr>
-              <th>{"Comment: "}</th>
-              <td>{comment}</td>
+              <th>{"State"}</th>
+              <td>{state.to_string()}</td>
             </tr>
-          }
-
-          if pretified != props.ctx.raw_oh {
             <tr>
-              <th>{"Pretified"}</th>
-              <td>
-                {pretified.clone()}
-                {" "}
-                <a onclick={pretified_onclick}>{"(apply)"}</a>
-              </td>
+              <th>{"Next change"}</th>
+              <td>{next_change}</td>
             </tr>
-          }
 
-          if normalized != pretified {
-            <tr>
-              <th>{"Normalized"}</th>
-              <td>
-                {normalized}
-                {" "}
-                <a onclick={normalize_onclick}>{"(apply)"}</a>
-              </td>
-            </tr>
-          }
+            if !comment.is_empty() {
+              <tr>
+                <th>{"Comment: "}</th>
+                <td>{comment}</td>
+              </tr>
+            }
 
+            if pretified != props.ctx.raw_oh {
+              <tr>
+                <th>{"Pretified"}</th>
+                <td>
+                  {pretified.clone()}
+                  {" "}
+                  <a onclick={pretified_onclick}>{"(apply)"}</a>
+                </td>
+              </tr>
+            }
+
+            if normalized != pretified {
+              <tr>
+                <th>{"Normalized"}</th>
+                <td>
+                  {normalized}
+                  {" "}
+                  <a onclick={normalize_onclick}>{"(apply)"}</a>
+                </td>
+              </tr>
+            }
           </tbody>
         </table>
       </>
