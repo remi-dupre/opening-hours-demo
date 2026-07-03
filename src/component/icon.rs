@@ -41,4 +41,5 @@ declare_src! {
     // Pictogrammers: https://pictogrammers.com/library/mdi/
     (GitHub, "github.svg"),
     (Position, "position.svg"),
+    (Message, "message.svg"),
 }
