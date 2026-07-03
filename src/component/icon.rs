@@ -40,4 +40,5 @@ macro_rules! declare_src {
 declare_src! {
     // Pictogrammers: https://pictogrammers.com/library/mdi/
     (GitHub, "github.svg"),
+    (Position, "position.svg"),
 }

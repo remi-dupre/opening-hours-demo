@@ -11,6 +11,6 @@ opening-hours-syntax = "*"
 opening-hours = { version = "*", features = ["auto-country", "auto-timezone", "log"] }
 serde = { version = "1.0.228", features = ["derive"] }
 wasm-logger = "0.2.0"
-web-sys = "0.3.77"
+web-sys = { version = "0.3.77", features = ["Geolocation", "GeolocationCoordinates", "GeolocationPosition", "Navigator"] }
 yew-router = "0.20.0"
 yew = { version = "0.23", features = ["csr"] }

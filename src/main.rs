@@ -25,7 +25,6 @@ enum Route {
 
 #[function_component]
 fn App() -> Html {
-    let expression_ref = use_node_ref();
     let navigator = use_navigator();
     let location = use_location();
 
@@ -57,40 +56,20 @@ fn App() -> Html {
         }
     });
 
-    let update_ctx = use_callback(ctx.clone(), {
-        let navigator = navigator.clone();
-
-        move |new_ctx: EvalContext, ctx| {
-            if **ctx == new_ctx {
-                return;
-            }
-
-            // Don't fetch the location from hook because it might not have been updated if there
-            // was no render.
-            let location = BrowserHistory::new().location();
-
-            if let Some(navigator) = &navigator {
-                new_ctx.update_url(&location, navigator);
-            }
-
-            ctx.set(new_ctx)
-        }
-    });
-
     // Update the context any time the URL changes (eg. by click back button)
     use_effect_with(location, {
-        let update_ctx = update_ctx.clone();
+        let cb_update_ctx = cb_update_ctx.clone();
 
         move |location| {
-            let new_ctx = {
+            let location = location.clone();
+
+            cb_update_ctx.emit(Box::new(move |_| {
                 if let Some(location) = &location {
                     EvalContext::new_from_url(location)
                 } else {
                     EvalContext::default()
                 }
-            };
-
-            update_ctx.emit(new_ctx)
+            }));
         }
     });
 
@@ -99,9 +78,8 @@ fn App() -> Html {
         <main class="container">
           <component::expression::Expression
             raw_oh={ctx.raw_oh.clone()}
-            is_valid={ctx.oh().is_some()}
+            is_valid={ctx.get_oh().is_some()}
             cb_update_ctx={cb_update_ctx.clone()}
-            expression_ref={expression_ref}
           />
 
           <section::context_form::ContextForm
@@ -111,7 +89,7 @@ fn App() -> Html {
 
           <hr />
 
-          if ctx.oh().is_some() {
+          if ctx.get_oh().is_some() {
             <section::title::Title ctx={ctx.clone()} />
             <section::properties::Properties ctx={ctx.clone()} />
             <section::schedule::Schedule ctx={ctx.clone()} />

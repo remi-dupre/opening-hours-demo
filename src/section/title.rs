@@ -11,12 +11,12 @@ pub struct Props {
 
 #[function_component]
 pub fn Title(props: &Props) -> Html {
-    let Some(oh) = props.ctx.oh() else {
+    let Some(oh) = props.ctx.get_oh() else {
         return html!();
     };
 
     let loc = &oh.get_context().locale;
-    let dt = props.ctx.local_dt().with_timezone(loc.get_timezone());
+    let dt = props.ctx.get_local_dt().with_timezone(loc.get_timezone());
     let next_change_opt = oh.next_change(dt);
     let (state, _comment) = oh.state(dt);
 

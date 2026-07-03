@@ -12,12 +12,12 @@ pub struct Props {
 
 #[function_component]
 pub fn Properties(props: &Props) -> Html {
-    let Some(oh) = props.ctx.oh() else {
+    let Some(oh) = props.ctx.get_oh() else {
         return html!();
     };
 
     let loc = &oh.get_context().locale;
-    let dt = props.ctx.local_dt().with_timezone(loc.get_timezone());
+    let dt = props.ctx.get_local_dt().with_timezone(loc.get_timezone());
     let pretified = oh.to_string();
     let normalized = oh.normalize().to_string();
 

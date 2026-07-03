@@ -8,40 +8,47 @@ use yew_router::prelude::{Location, Navigator};
 
 use crate::{OpeningHours, Route};
 
+/// Paris
+const DEFAULT_COORDS: Coordinates = Coordinates::new(48.85, 2.34).unwrap();
+
 pub type CallbackUpdateCtx = Callback<Box<dyn FnMut(EvalContext) -> EvalContext>, ()>;
 
 #[derive(Clone, Debug, Default)]
 struct EvalContextCache {
     oh: OnceCell<Option<OpeningHours>>,
+    location: OnceCell<TzLocation<chrono_tz::Tz>>,
+    country: OnceCell<Option<Country>>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+impl PartialEq for EvalContextCache {
+    fn eq(&self, _other: &Self) -> bool {
+        true
+    }
+}
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq)]
 pub struct EvalContext {
     #[serde(default, rename = "oh", skip_serializing_if = "String::is_empty")]
     pub raw_oh: String,
     pub dt: Option<DateTime<Local>>,
+    #[serde(default, flatten, with = "serde_coord")]
+    pub coords: Option<Coordinates>,
     #[serde(default, skip)]
     cache: EvalContextCache,
 }
 
-impl PartialEq for EvalContext {
-    fn eq(&self, other: &Self) -> bool {
-        self.raw_oh == other.raw_oh && self.dt == other.dt
-    }
-}
-
-impl Eq for EvalContext {}
-
 impl EvalContext {
-    pub fn oh(&self) -> Option<&OpeningHours> {
+    pub fn get_oh(&self) -> Option<&OpeningHours> {
         (self.cache.oh)
             .get_or_init(|| {
-                let loc = TzLocation::new(chrono_tz::Europe::Paris)
-                    .with_coords(Coordinates::new(48.85, 2.35).unwrap());
+                let loc = TzLocation::new(chrono_tz::Europe::Paris).with_coords(self.get_coords());
+                let mut ctx = opening_hours::Context::default().with_locale(loc);
 
-                let ctx = opening_hours::Context::default()
-                    .with_holidays(Country::US.holidays())
-                    .with_locale(loc);
+                if let Some(country) = Country::try_from_coords(self.get_coords()) {
+                    ctx = ctx
+                        .with_holidays(country.holidays())
+                        .with_holidays_unknown(country.holidays_regional());
+                }
 
                 let oh: opening_hours::OpeningHours = self.raw_oh.parse().ok()?;
                 Some(oh.with_context(ctx))
@@ -49,8 +56,24 @@ impl EvalContext {
             .as_ref()
     }
 
-    pub fn local_dt(&self) -> DateTime<Local> {
+    pub fn get_local_dt(&self) -> DateTime<Local> {
         self.dt.unwrap_or_else(Local::now)
+    }
+
+    pub fn get_coords(&self) -> Coordinates {
+        self.coords.unwrap_or(DEFAULT_COORDS)
+    }
+
+    pub fn get_country(&self) -> Option<Country> {
+        *(self.cache)
+            .country
+            .get_or_init(|| Country::try_from_coords(self.get_coords()))
+    }
+
+    pub fn get_location(&self) -> &TzLocation<chrono_tz::Tz> {
+        (self.cache)
+            .location
+            .get_or_init(|| TzLocation::from_coords(self.get_coords()))
     }
 
     pub fn new_from_url(location: &Location) -> Self {
@@ -84,6 +107,22 @@ impl EvalContext {
         }
     }
 
+    pub fn with_coords(self, coords: Coordinates) -> Self {
+        let coords = {
+            if coords == DEFAULT_COORDS {
+                None
+            } else {
+                Some(coords)
+            }
+        };
+
+        Self {
+            coords,
+            cache: EvalContextCache::default(),
+            ..self
+        }
+    }
+
     pub fn update_url(&self, location: &Location, navigator: &Navigator) {
         let prev_val = Self::new_from_url(location);
 
@@ -92,7 +131,7 @@ impl EvalContext {
         }
 
         let result = {
-            if prev_val.oh().is_some() {
+            if prev_val.get_oh().is_some() {
                 log::info!("Push {:?}", self.raw_oh);
                 navigator.push_with_query(&Route::Root, self)
             } else {
@@ -104,5 +143,54 @@ impl EvalContext {
         if let Err(err) = result {
             log::warn!("Could not update history: {err}")
         };
+    }
+}
+
+/// --
+/// -- Serde conversion for coordinates
+/// --
+mod serde_coord {
+    use opening_hours::localization::Coordinates;
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+    #[derive(Debug, Deserialize, Serialize)]
+    struct Wrapper {
+        lat: String,
+        lon: String,
+    }
+
+    impl From<Coordinates> for Wrapper {
+        fn from(value: Coordinates) -> Self {
+            Self {
+                lat: value.lat().to_string(),
+                lon: value.lon().to_string(),
+            }
+        }
+    }
+
+    impl TryInto<Coordinates> for Wrapper {
+        type Error = ();
+
+        fn try_into(self) -> Result<Coordinates, Self::Error> {
+            Coordinates::new(
+                self.lat.parse().map_err(|_| ())?,
+                self.lon.parse().map_err(|_| ())?,
+            )
+            .ok_or(())
+        }
+    }
+
+    pub(crate) fn serialize<S>(coords: &Option<Coordinates>, s: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        coords.map(Wrapper::from).serialize(s)
+    }
+
+    pub(crate) fn deserialize<'de, D>(d: D) -> Result<Option<Coordinates>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        <Option<Wrapper>>::deserialize(d).map(|opt| opt.and_then(|wrapped| wrapped.try_into().ok()))
     }
 }

@@ -8,7 +8,6 @@ pub struct Props {
     pub raw_oh: String,
     pub is_valid: bool,
     pub cb_update_ctx: CallbackUpdateCtx,
-    pub expression_ref: NodeRef,
 }
 
 #[function_component]
@@ -40,7 +39,6 @@ pub fn Expression(props: &Props) -> Html {
 
     html! {
       <textarea
-        ref={props.expression_ref.clone()}
         value={props.raw_oh.clone()}
         aria-invalid={invalid}
         placeholder="Enter an opening hours expression"
