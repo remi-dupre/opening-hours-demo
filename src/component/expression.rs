@@ -1,7 +1,7 @@
 use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
 
-use crate::eval::{CallbackUpdateCtx, EvalContext};
+use crate::context::{CallbackUpdateCtx, EvalContext};
 
 #[derive(Properties, PartialEq)]
 pub struct Props {

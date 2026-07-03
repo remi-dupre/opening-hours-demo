@@ -4,9 +4,12 @@ use chrono::{DateTime, Local};
 use opening_hours::localization::{Coordinates, Country, TzLocation};
 use serde::{Deserialize, Serialize};
 use yew::Callback;
-use yew_router::prelude::{Location, Navigator};
+use yew_router::{
+    AnyRoute,
+    prelude::{Location, Navigator},
+};
 
-use crate::{OpeningHours, Route};
+use crate::OpeningHours;
 
 /// Paris
 const DEFAULT_COORDS: Coordinates = Coordinates::new(48.85, 2.34).unwrap();
@@ -133,10 +136,10 @@ impl EvalContext {
         let result = {
             if prev_val.get_oh().is_some() {
                 log::info!("Push {:?}", self.raw_oh);
-                navigator.push_with_query(&Route::Root, self)
+                navigator.push_with_query(&AnyRoute::new(location.path()), self)
             } else {
                 log::info!("Replace {:?}", self.raw_oh);
-                navigator.replace_with_query(&Route::Root, self)
+                navigator.replace_with_query(&AnyRoute::new(location.path()), self)
             }
         };
 

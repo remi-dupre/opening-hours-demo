@@ -6,7 +6,7 @@ use yew::prelude::*;
 
 use crate::component::icon::Icon;
 use crate::component::icon::Position;
-use crate::eval::{CallbackUpdateCtx, EvalContext};
+use crate::context::{CallbackUpdateCtx, EvalContext};
 
 #[derive(Properties, PartialEq)]
 pub struct Props {

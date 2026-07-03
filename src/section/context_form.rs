@@ -2,7 +2,7 @@ use yew::prelude::*;
 
 use crate::component::coords_picker::CoordsPicker;
 use crate::component::date_picker::DatePicker;
-use crate::eval::{CallbackUpdateCtx, EvalContext};
+use crate::context::{CallbackUpdateCtx, EvalContext};
 
 const DATETIME_FORMAT: &str = "%Y-%m-%d %H:%M";
 

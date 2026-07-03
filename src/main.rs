@@ -1,5 +1,5 @@
 pub(crate) mod component;
-pub(crate) mod eval;
+pub(crate) mod context;
 pub(crate) mod links;
 pub(crate) mod section;
 pub(crate) mod utils;
@@ -10,18 +10,9 @@ use yew::prelude::*;
 use yew_router::history::{BrowserHistory, History};
 use yew_router::prelude::*;
 
-use crate::eval::EvalContext;
+use crate::context::EvalContext;
 
 pub(crate) type OpeningHours = opening_hours::OpeningHours<TzLocation<Tz>>;
-
-#[derive(Debug, Clone, Copy, PartialEq, Routable)]
-enum Route {
-    #[at("/")]
-    Root,
-    /// TODO
-    #[at("/s/{blob}/")]
-    ShortLink,
-}
 
 #[function_component]
 fn App() -> Html {
