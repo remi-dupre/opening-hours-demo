@@ -34,9 +34,9 @@ pub fn ContextForm(props: &Props) -> Html {
           </em>
         </summary>
         <article>
-          <h3>{"Change current evaluation date"}</h3>
+          <h4>{"Change current evaluation date"}</h4>
           <DatePicker cb_update_ctx={props.cb_update_ctx.clone()} {auto_date} {dt} />
-          <h3>{"Change evaluation position"}</h3>
+          <h4>{"Change evaluation position"}</h4>
           <CoordsPicker cb_update_ctx={props.cb_update_ctx.clone()} {coords} {country} {timezone} />
         </article>
       </details>

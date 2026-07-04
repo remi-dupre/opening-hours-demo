@@ -1,4 +1,4 @@
-use chrono::{DateTime, Local, NaiveDateTime, TimeDelta, TimeZone};
+use chrono::{DateTime, Days, Local, Months, NaiveDateTime, TimeDelta, TimeZone};
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
@@ -16,17 +16,6 @@ pub struct Props {
 #[function_component]
 pub fn DatePicker(props: &Props) -> Html {
     let dt_str = props.dt.format(DATETIME_FORMAT).to_string();
-
-    let time_add = |delta| {
-        let dt = props.dt;
-        let cb_update_ctx = props.cb_update_ctx.clone();
-
-        move |_| {
-            if let Some(new_dt) = dt.checked_add_signed(delta) {
-                cb_update_ctx.emit(Box::new(move |ctx| ctx.with_dt(new_dt)))
-            }
-        }
-    };
 
     let on_dt_input = use_callback(props.cb_update_ctx.clone(), {
         |input: InputEvent, cb_update_ctx| {
@@ -73,6 +62,22 @@ pub fn DatePicker(props: &Props) -> Html {
         },
     );
 
+    // Quick buttons callbacks
+    let time_set = |dt_opt: Option<DateTime<Local>>| {
+        let cb_update_ctx = props.cb_update_ctx.clone();
+
+        move |_| {
+            if let Some(dt) = dt_opt {
+                cb_update_ctx.emit(Box::new(move |ctx| ctx.with_dt(dt)))
+            }
+        }
+    };
+
+    let prev_day = props.dt.checked_sub_days(Days::new(1));
+    let prev_month = props.dt.checked_sub_months(Months::new(1));
+    let next_month = props.dt.checked_add_months(Months::new(1));
+    let next_day = props.dt.checked_add_days(Days::new(1));
+
     html! {
       <>
         <fieldset>
@@ -81,10 +86,12 @@ pub fn DatePicker(props: &Props) -> Html {
             {"Evaluate from current date"}
           </label>
         </fieldset>
+        <input type="datetime-local" class="outline" value={dt_str} oninput={on_dt_input} />
         <fieldset role="group">
-          <input type="submit" value="-1d" onclick={time_add(TimeDelta::days(-1))} />
-          <input type="datetime-local" class="outline" value={dt_str} oninput={on_dt_input} />
-          <input type="submit" value="+1d" onclick={time_add(TimeDelta::days(1))} />
+          <input type="submit" class="outline" value="-1d" onclick={time_set(prev_day)} />
+          <input type="submit" class="outline" value="-1m" onclick={time_set(prev_month)} />
+          <input type="submit" class="outline" value="+1m" onclick={time_set(next_month)} />
+          <input type="submit" class="outline" value="+1d" onclick={time_set(next_day)} />
         </fieldset>
       </>
     }

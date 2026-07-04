@@ -1,5 +1,16 @@
+button,
+input {
+  --pico-spacing: 0.5rem;
+  --pico-form-element-spacing-vertical: 0.3rem !important;
+  --pico-form-element-spacing-horizontal: 0.3rem !important;
+}
+
 .container {
   max-width: 600px;
+}
+
+a {
+  pointer: cursor;
 }
 
 /**
@@ -36,19 +47,28 @@
   border: none; /* override pico */
 }
 
-.schedule tr td {
-  padding: 0.1rem 0.3rem;
+.schedule td {
+  border: none;
 }
 
-.schedule tr td:nth-child(2) {
+.schedule thead td {
+  padding: 0;
+}
+
+.schedule tbody td {
+  padding: 0.2rem 0.3rem;
+}
+
+.schedule tbody td:nth-child(2) {
   width: 1%;
   width: 100%;
+  padding: 0.2rem 0;
 }
 
 .schedule .bar {
-  height: 1.2rem;
+  height: 1.5rem;
   border: 1px solid var(--pico-color);
-  border-radius: 5px;
+  border-radius: var(--pico-border-radius);
 }
 
 .schedule .hour {
@@ -74,18 +94,24 @@
   height: 100%;
   display: inline-block;
   cursor: pointer;
+  color: var(--interval-color);
+  background-color: var(--interval-background);
+}
+
+.schedule .interval:first-child {
+  border-radius: var(--pico-border-radius) 0 0 var(--pico-border-radius);
+}
+
+.schedule .interval:last-child {
+  border-radius: 0 var(--pico-border-radius) var(--pico-border-radius) 0;
+}
+
+.schedule .interval:first-child:last-child {
+  border-radius: var(--pico-border-radius);
 }
 
 .schedule .interval:not(:last-child) {
-  border-right: 1px solid black;
-}
-
-.schedule .interval.open {
-  background-color: var(--pico-primary-background);
-}
-
-.schedule .interval.unknown {
-  background-color: var(--pico-color);
+  border-right: 1px dashed var(--interval-color);
 }
 
 .schedule .interval .icon-container {
@@ -94,7 +120,17 @@
   padding: 6px 8px;
 }
 
-.schedule .interval.open .icon-container,
-.schedule .interval.unknown .icon-container {
-  color: var(--pico-background-color);
+.schedule .interval.open {
+  --interval-background: var(--pico-primary-background);
+  --interval-color: var(--pico-background-color);
+}
+
+.schedule .interval.closed {
+  --interval-background: var(--pico-background-color);
+  --interval-color: var(--pico-color);
+}
+
+.schedule .interval.unknown {
+  --interval-background: var(--pico-color);
+  --interval-color: var(--pico-background-color);
 }
